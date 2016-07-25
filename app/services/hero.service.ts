@@ -1,6 +1,6 @@
 import { Hero } from './../models/hero/hero';
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, Headers } from '@angular/http';
 import { HEROES } from './mocks/mock-heroes';
 import 'rxjs/add/operator/toPromise';
 
@@ -28,4 +28,45 @@ export class HeroService {
             )
         );
     }
+    private post(hero: Hero): Promise<Hero> {
+        let headers = new Headers({
+            'Content-Type': 'application/json'
+        });
+        return this.http.post(this.heroesUrl, JSON.stringify(hero), {headers: headers })
+            .toPromise()
+            .then(res => res.json().data)
+            .catch(this.handleError);
+    }
+    // Update existing Hero
+    private put(hero: Hero) {
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+
+        let url = `${this.heroesUrl}/${hero.id}`;
+
+        return this.http
+            .put(url, JSON.stringify(hero), { headers: headers })
+            .toPromise()
+            .then(() => hero)
+            .catch(this.handleError);
+    }
+    delete(hero: Hero) {
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+
+        let url = `${this.heroesUrl}/${hero.id}`;
+
+        return this.http
+            .delete(url, { headers: headers })
+            .toPromise()
+            .catch(this.handleError);
+    }
+    save(hero: Hero): Promise<Hero>  {
+    if (hero.id) {
+        return this.put(hero);
+    }
+    return this.post(hero);
+    }
+
+
 }
